@@ -1,0 +1,22 @@
+{
+  "name": "subcommand",
+  "version": "1.0.0",
+  "description": "create CLI tools with subcommands and autogenerate usage and help",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxogden/subcommand.git"
+  },
+  "keywords": [
+    "minimist"
+  ],
+  "author": "max ogden",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/maxogden/subcommand/issues"
+  },
+  "homepage": "https://github.com/maxogden/subcommand"
+}
