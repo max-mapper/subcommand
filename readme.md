@@ -1,6 +1,6 @@
 # subcommand
 
-create CLI tools with subcommands and autogenerate usage and help. Combines the awesomeness of [minimist](https://www.npmjs.com/package/minimist) and [cliclopts](https://www.npmjs.com/package/cliclopts).
+A minimalist CLI router based on [minimist](https://www.npmjs.com/package/minimist) and [cliclopts](https://www.npmjs.com/package/cliclopts).
 
 [![NPM](https://nodei.co/npm/subcommand.png)](https://nodei.co/npm/subcommand/)
 
