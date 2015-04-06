@@ -1,5 +1,6 @@
 var minimist = require('minimist')
 var cliclopts = require('cliclopts')
+var xtend = require('xtend')
 var debug = require('debug')('subcommand')
 
 module.exports = function subcommand (commands, options) {
@@ -7,11 +8,19 @@ module.exports = function subcommand (commands, options) {
   // return value false means it was not handled
   // return value true means it was
   return function matcher (args) {
-    var argv = minimist(args, options.minimistOpts)
+    var toplevel = toplevelCommand(commands)
+    if (toplevel && toplevel.options) var toplevelOpts = cliclopts(toplevel.options).options()
+    var parseOpts = xtend({}, options.minimistOpts || {}, toplevelOpts)
+    var argv = minimist(args, parseOpts)
     debug('parsed', argv)
     var sub = findCommand(argv._, commands)
-    // var help = argv.help || argv.h || argv['?']
-    if (!sub) return false
+    if (!sub) {
+      if (argv._.length === 0 && toplevel && toplevel.command) {
+        toplevel.command(argv)
+        return true
+      }
+      return false
+    }
     var subOpts = {}
     if (sub.command.options) subOpts = cliclopts(sub.command.options).options()
     var subargv = minimist(sub.args, subOpts)
@@ -20,6 +29,18 @@ module.exports = function subcommand (commands, options) {
     })
     return true
   }
+}
+
+// gets the command without a 'name'. there should only be one
+function toplevelCommand (commands) {
+  var command
+  commands.map(function each (cmd) {
+    if (typeof cmd.name !== 'undefined' && cmd.name === '') {
+      if (command) console.error('Warning: found multiple nameless commands')
+      command = cmd
+    }
+  })
+  return command
 }
 
 function findCommand (args, commands) {

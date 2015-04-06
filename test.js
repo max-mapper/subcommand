@@ -4,6 +4,17 @@ var sub = require('./')
 function testCommands (onMatch) {
   var commands = [
     {
+      name: '',
+      options: [{
+        name: 'version',
+        boolean: true,
+        abbr: 'v'
+      }],
+      command: function noCommand (args) {
+        onMatch('noCommand', args)
+      }
+    },
+    {
       name: 'cat',
       options: [
         {
@@ -110,5 +121,16 @@ test('match 3 arg command w/ 1 extra arg', function (t) {
   }
   var args = sub(testCommands(onMatch))
   var handled = args(['cat', 'foo', 'bar', 'muffin'])
+  t.equal(handled, true, 'returned true')
+})
+
+test('match top level option using abbr', function (t) {
+  function onMatch (matched, args) {
+    t.equal(matched, 'noCommand')
+    t.equal(args.version, true, 'got version')
+    t.end()
+  }
+  var args = sub(testCommands(onMatch))
+  var handled = args(['-v'])
   t.equal(handled, true, 'returned true')
 })

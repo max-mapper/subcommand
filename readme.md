@@ -41,7 +41,7 @@ then pass them into `subcommand`:
 
 ```js
 var subcommand = require('subcommand')
-var match = subcommand(commands)
+var match = subcommand(commands, opts)
 ```
 
 `subcommand` returns a function (called `match` above) that you can use to match/route arguments to their commands
@@ -60,3 +60,23 @@ var matched = match(['uhoh'])
 // matched will be false
 ```
 
+to pass options to the 'top level' command (e.g. when no subcommand is passed in), pass a command in your commands array that has `name: ''`
+
+```js
+var commands = [
+  {
+    name: '',
+    options: [ // cliclopts options
+      {
+        name: 'loud',
+        boolean: true,
+        default: false,
+        abbr: 'v'
+      }
+    ],
+    command: function (args) {
+      // called when no subcommand is specified
+    }
+  }
+]
+```
