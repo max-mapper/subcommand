@@ -155,6 +155,17 @@ test('default options', function (t) {
   t.equal(handled, true, 'returned true')
 })
 
+test('commands with no options still get defaults', function (t) {
+  function onMatch (matched, args) {
+    t.equal(matched, 'cat foo')
+    t.equal(args.taco, true, 'got taco')
+    t.end()
+  }
+  var args = sub(testCommands(onMatch))
+  var handled = args(['cat', 'foo', '-t'])
+  t.equal(handled, true, 'returned true')
+})
+
 test('default options are overridden', function (t) {
   var args = sub({
     defaults: [{name: 'foo', default: 'donkey'}],

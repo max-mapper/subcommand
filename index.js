@@ -9,6 +9,7 @@ module.exports = function subcommand (config, options) {
     config = { commands: config }
   }
   if (!config.commands) config.commands = []
+  if (!config.defaults) config.defaults = []
   // return value false means it was not handled
   // return value true means it was
   return function matcher (args) {
@@ -29,11 +30,10 @@ module.exports = function subcommand (config, options) {
       if (config.none) config.none(argv)
       return false
     }
-    var subOpts = {}
-    if (sub.command.options) {
-      subOpts = cliclopts(config.defaults.concat(sub.command.options)).options()
-    }
-    var subargv = minimist(args, subOpts)
+    var subMinimistOpts = {}
+    var subOpts = config.defaults.concat(sub.command.options || [])
+    subMinimistOpts = cliclopts(subOpts).options()
+    var subargv = minimist(args, subMinimistOpts)
     subargv._ = subargv._.slice(sub.commandLength)
     process.nextTick(function doCb () {
       sub.command.command(subargv)
