@@ -23,7 +23,9 @@ module.exports = function subcommand (commands, options) {
     }
     var subOpts = {}
     if (sub.command.options) subOpts = cliclopts(sub.command.options).options()
-    var subargv = minimist(sub.args, subOpts)
+    var subargv = minimist(args, subOpts)
+    subargv._ = subargv._.slice(sub.commandLength)
+    
     process.nextTick(function doCb () {
       sub.command.command(subargv)
     })
@@ -44,7 +46,7 @@ function toplevelCommand (commands) {
 }
 
 function findCommand (args, commands) {
-  var match, subArgs
+  var match, commandLength
 
   commands
     .map(function each (c, idx) {
@@ -59,12 +61,12 @@ function findCommand (args, commands) {
       var argString = JSON.stringify(args.slice(0, c.name.length))
       debug('checking', cmdString, argString)
       if (cmdString === argString) {
-        subArgs = args.slice(c.name.length, args.length)
         match = commands[c.index]
+        commandLength = c.name.length
       }
     })
 
-  var returnData = {command: match, args: subArgs}
+  var returnData = {command: match, commandLength: commandLength}
   debug('match', match)
   if (match) return returnData
   else return false
