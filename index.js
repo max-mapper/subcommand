@@ -3,29 +3,38 @@ var cliclopts = require('cliclopts')
 var xtend = require('xtend')
 var debug = require('debug')('subcommand')
 
-module.exports = function subcommand (commands, options) {
+module.exports = function subcommand (config, options) {
   if (!options) options = {}
+  if (Array.isArray(config)) {
+    config = { commands: config }
+  }
+  if (!config.commands) config.commands = []
   // return value false means it was not handled
   // return value true means it was
   return function matcher (args) {
-    var toplevel = toplevelCommand(commands)
-    if (toplevel && toplevel.options) var toplevelOpts = cliclopts(toplevel.options).options()
-    var parseOpts = xtend({}, options.minimistOpts || {}, toplevelOpts)
+    var root = config.root
+    if (root && root.options) {
+      var rootOpts = cliclopts(config.defaults.concat(root.options)).options()
+    }
+    var parseOpts = xtend({}, options.minimistOpts || {}, rootOpts)
     var argv = minimist(args, parseOpts)
     debug('parsed', argv)
-    var sub = findCommand(argv._, commands)
+    var sub = findCommand(argv._, config.commands)
+    if (config.all) config.all(argv)
     if (!sub) {
-      if (argv._.length === 0 && toplevel && toplevel.command) {
-        toplevel.command(argv)
+      if (argv._.length === 0 && root && root.command) {
+        root.command(argv)
         return true
       }
+      if (config.none) config.none(argv)
       return false
     }
     var subOpts = {}
-    if (sub.command.options) subOpts = cliclopts(sub.command.options).options()
+    if (sub.command.options) {
+      subOpts = cliclopts(config.defaults.concat(sub.command.options)).options()
+    }
     var subargv = minimist(args, subOpts)
     subargv._ = subargv._.slice(sub.commandLength)
-
     process.nextTick(function doCb () {
       sub.command.command(subargv)
     })
@@ -33,21 +42,8 @@ module.exports = function subcommand (commands, options) {
   }
 }
 
-// gets the command without a 'name'. there should only be one
-function toplevelCommand (commands) {
-  var command
-  commands.map(function each (cmd) {
-    if (typeof cmd.name !== 'undefined' && cmd.name === '') {
-      if (command) console.error('Warning: found multiple nameless commands')
-      command = cmd
-    }
-  })
-  return command
-}
-
 function findCommand (args, commands) {
   var match, commandLength
-
   commands
     .map(function each (c, idx) {
       // turn e.g. 'foo bar' into ['foo', 'bar']
@@ -65,7 +61,6 @@ function findCommand (args, commands) {
         commandLength = c.name.length
       }
     })
-
   var returnData = {command: match, commandLength: commandLength}
   debug('match', match)
   if (match) return returnData
