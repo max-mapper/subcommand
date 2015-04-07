@@ -25,7 +25,7 @@ module.exports = function subcommand (commands, options) {
     if (sub.command.options) subOpts = cliclopts(sub.command.options).options()
     var subargv = minimist(args, subOpts)
     subargv._ = subargv._.slice(sub.commandLength)
-    
+
     process.nextTick(function doCb () {
       sub.command.command(subargv)
     })
