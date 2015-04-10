@@ -15,28 +15,30 @@ module.exports = function subcommand (config, options) {
   return function matcher (args) {
     var root = config.root
     if (root && root.options) {
-      var rootOpts = cliclopts(config.defaults.concat(root.options)).options()
+      var rootCliClOpts = cliclopts(config.defaults.concat(root.options))
+      var rootOpts = rootCliClOpts.options()
     }
     var parseOpts = xtend({}, options.minimistOpts || {}, rootOpts)
     var argv = minimist(args, parseOpts)
     debug('parsed', argv)
     var sub = findCommand(argv._, config.commands)
-    if (config.all) config.all(argv)
+    if (config.all) config.all(argv, rootCliClOpts)
     if (!sub) {
       if (argv._.length === 0 && root && root.command) {
-        root.command(argv)
+        root.command(argv, rootCliClOpts)
         return true
       }
-      if (config.none) config.none(argv)
+      if (config.none) config.none(argv, rootCliClOpts)
       return false
     }
     var subMinimistOpts = {}
     var subOpts = config.defaults.concat(sub.command.options || [])
-    subMinimistOpts = cliclopts(subOpts).options()
+    var subCliClOpts = cliclopts(subOpts)
+    subMinimistOpts = subCliClOpts.options()
     var subargv = minimist(args, subMinimistOpts)
     subargv._ = subargv._.slice(sub.commandLength)
     process.nextTick(function doCb () {
-      sub.command.command(subargv)
+      sub.command.command(subargv, subCliClOpts, rootCliClOpts)
     })
     return true
   }
