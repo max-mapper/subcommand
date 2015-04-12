@@ -4,15 +4,14 @@ var minimist = require('minimist')
 var debug = require('debug')('subcommand')
 
 function match(config, options, args, cmd) {
-    debug('cmd', cmd)
-    debug('args',args)
-    debug('config',config)
     var argv = minimist(args)
-    debug('parsed', argv)
 
-    // if !cmd -> initial -> fix
+    var moreCmds = false
+    if (argv._.length > 0 && config.commands) {
+        moreCmds = config.commands.filter(function(_cmd) { return _cmd.name == argv._[0]}).length > 0
+    }
 
-    if (cmd && cmd == config.name) {
+    if (cmd && cmd == config.name && !moreCmds) {
         config.command(argv)
         return true
     } 
@@ -21,11 +20,6 @@ function match(config, options, args, cmd) {
     var nextArgs = args.filter(function(arg) { return arg != nextCmd })
     var nextConfig = config.commands.filter(function(_cmd) { return _cmd.name == nextCmd })
 
-    debug('nextCmd', nextCmd)
-    debug('nextArgs', nextArgs)
-    debug('nextConfig', nextConfig)
-
-    // if !nextConfig -> die
     if (nextConfig.length == 0) {
         return false
     }
