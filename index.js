@@ -17,7 +17,7 @@ module.exports = function subcommand (config, options) {
     if (root && root.options) {
       var rootOpts = cliclopts(config.defaults.concat(root.options)).options()
     }
-    var parseOpts = xtend({}, options.minimistOpts || {}, rootOpts)
+    var parseOpts = xtend(options.minimistOpts || {}, rootOpts)
     var argv = minimist(args, parseOpts)
     debug('parsed', argv)
     var sub = findCommand(argv._, config.commands)
@@ -55,7 +55,6 @@ function findCommand (args, commands) {
     .forEach(function eachCommand (c) {
       var cmdString = JSON.stringify(c.name)
       var argString = JSON.stringify(args.slice(0, c.name.length))
-      debug('checking', cmdString, argString)
       if (cmdString === argString) {
         match = commands[c.index]
         commandLength = c.name.length
