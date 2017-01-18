@@ -10,7 +10,11 @@ module.exports = function subcommand (config, options) {
   }
   if (!config.commands) config.commands = []
   if (!config.defaults) config.defaults = []
-  // return value false means it was not handled
+  if (config.usage && !config.usage.option) {
+    if (typeof config.usage !== 'object') config.usage = {} // allow config.usage = true
+    config.usage.option = { name: 'help', abbr: 'h' }
+  }
+  // return value false means it was not handleds
   // return value true means it was
   return function matcher (args) {
     var root = config.root
@@ -21,10 +25,18 @@ module.exports = function subcommand (config, options) {
     var parseOpts = xtend(options.minimistOpts || {}, rootOpts)
     var argv = minimist(args, parseOpts)
     debug('parsed', argv)
-    if (config.usage) config.commands.push(config.usage)
     var sub = findCommand(argv._, config.commands)
     if (config.all) config.all(argv)
     if (!sub) {
+      if (config.usage && (argv[config.usage.option.name] || argv[config.usage.option.abbr])) {
+        debug('Printing general usage')
+        if (config.usage.command) config.usage.command(argv, config.usage.help, rootClic.usage())
+        else {
+          if (config.usage.help) process.stdout.write(config.usage.help + '\n')
+          process.stdout.write(rootClic.usage())
+        }
+        return true
+      }
       if (argv._.length === 0 && root && root.command) {
         root.command(argv)
         return true
@@ -32,17 +44,21 @@ module.exports = function subcommand (config, options) {
       if (config.none) config.none(argv)
       return false
     }
-    if (config.usage && sub.command.name === config.usage.name) {
-      if (config.usage.command) config.usage.command(argv, rootClic.usage())
-      else rootClic.print()
-      return true
-    }
     var subMinimistOpts = {}
     var subOpts = config.defaults.concat(sub.command.options || [])
     var subClic = cliclopts(subOpts)
     subMinimistOpts = subClic.options()
     var subargv = minimist(args, subMinimistOpts)
     subargv._ = subargv._.slice(sub.commandLength)
+    if (config.usage && (subargv[config.usage.option.name] || subargv[config.usage.option.abbr])) {
+      debug('Printing subcommand usage')
+      if (sub.command.usage) sub.command.usage(subargv, sub.command.help, subClic.usage())
+      else {
+        if (sub.command.help) process.stdout.write(sub.command.help + '\n')
+        process.stdout.write(subClic.usage())
+      }
+      return true
+    }
     process.nextTick(function doCb () {
       sub.command.command(subargv, subClic)
     })

@@ -22,18 +22,25 @@ function testCommands (onMatch, onAll, onNone, onUsage) {
     all: onAll,
     none: onNone,
     usage: {
-      name: 'help',
+      help: 'this is the general help',
+      option: {
+        name: 'help',
+        abbr: 'h'
+      },
       command: onUsage
     },
     commands: [
       {
         name: 'cat',
+        help: 'cat meow',
+        usage: onUsage,
         options: [
           {
             name: 'live',
             boolean: true,
             default: true,
-            abbr: 'l'
+            abbr: 'l',
+            help: 'live option'
           },
           {
             name: 'format',
@@ -218,13 +225,27 @@ test('none handler', function (t) {
 })
 
 test('usage handler', function (t) {
-  t.plan(4)
-  function onUsage (args, usage) {
+  t.plan(5)
+  function onUsage (args, help, usage) {
     t.ok(true, 'called onUsage')
+    t.ok(help, 'has general help')
     t.ok(usage, 'has cliclops usage')
     t.ok(usage.indexOf('version option') > -1, 'has version help')
   }
   var args = sub(testCommands(null, null, null, onUsage))
-  var handled = args(['help'])
+  var handled = args(['--help'])
+  t.equal(handled, true, 'returned true')
+})
+
+test('subcommand usage handler', function (t) {
+  t.plan(5)
+  function onUsage (args, help, usage) {
+    t.ok(true, 'called onUsage')
+    t.ok(help, 'has general help')
+    t.ok(usage, 'has cliclops usage')
+    t.ok(usage.indexOf('live option') > -1, 'has live help')
+  }
+  var args = sub(testCommands(null, null, null, onUsage))
+  var handled = args(['cat', '--help'])
   t.equal(handled, true, 'returned true')
 })
