@@ -21,7 +21,8 @@ var commands = [
         name: 'loud',
         boolean: true,
         default: false,
-        abbr: 'v'
+        abbr: 'v',
+        help: 'print out all output loudly'
       }
     ],
     command: function foo (args) {
@@ -72,6 +73,7 @@ instead of an array, you can also pass an object that looks like this as the fir
   defaults: // default options
   all: // function that gets called always, regardless of match or no match
   none: // function that gets called only when there is no matched subcommand
+  usage: // subcommand to use for printing usage
   commands: // the commands array from basic usage
 }
 ```
@@ -133,5 +135,75 @@ pass a function under the `none` key and it will get called when no subcommand i
 var config = {
   none: function none (args) { /** will only be called when no subcommand is matched **/ },
   commands: yourSubCommandsArray
+}
+```
+
+### usage
+
+The `usage` option makes it easy to print [cliclops usage](https://github.com/finnp/cliclopts#clioptsusage) for the root command and subcommands.
+
+#### Basic usage
+
+By default, usage is printed with the `--help` or `-h` option. Set usage to true to print `cliclops.usage()` with `--help`:
+
+```js
+var config = {
+  usage: true
+}
+```
+
+Use `usage.help` to print information above `cliclops.usage()`. Change the name of the usage option by specifying `usage.option`:
+
+```js
+var config = {
+  usage: {
+    help: 'general usage info',
+    option: {
+      name: 'info',
+      abbr: 'i'
+    }
+  }
+}
+```
+
+This will print the usage with `--info` or `-i` instead of `--help`. The option is used for the root and subcommands.
+
+#### Advanced Usage
+
+You can also define custom usage functions for the root and subcommands. These are passed the help text and `cliclops.usage()`.
+
+```js
+var config = {
+  usage: {
+    help: 'general help message', // Message to print before cliclops.usage()
+    option: {
+      // minimist option to use for printing usage
+      name: 'help',
+      abbr: 'h'
+    },
+    command: function (args, help, usage) {
+      // optional function to print usage. 
+      console.log(help) // prints: "general help message"
+      console.log(usage) // prints: cliclops.usage() 
+    }
+  },
+  commands: [{
+    name: 'foo',
+    help: 'foo help message',
+    options: [
+      {
+        name: 'loud',
+        help: 'print out all output loudly'
+      }
+    ],
+    usage: function (args, help, usage) {
+      // called when `foo` is matched and --help option is used
+      console.log(help) // prints: "foo help message"
+      console.log(usage) // prints: cliclops.usage()
+    },
+    command: function foo (args) {
+      // called when `foo` is matched
+    }
+  }]
 }
 ```

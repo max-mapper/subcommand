@@ -1,13 +1,14 @@
 var test = require('tape')
 var sub = require('./')
 
-function testCommands (onMatch, onAll, onNone) {
+function testCommands (onMatch, onAll, onNone, onUsage) {
   var config = {
     root: {
       options: [{
         name: 'version',
         boolean: true,
-        abbr: 'v'
+        abbr: 'v',
+        help: 'version option'
       }],
       command: function noCommand (args) {
         onMatch('noCommand', args)
@@ -20,15 +21,26 @@ function testCommands (onMatch, onAll, onNone) {
     }],
     all: onAll,
     none: onNone,
+    usage: {
+      help: 'this is the general help',
+      option: {
+        name: 'help',
+        abbr: 'h'
+      },
+      command: onUsage
+    },
     commands: [
       {
         name: 'cat',
+        help: 'cat meow',
+        usage: onUsage,
         options: [
           {
             name: 'live',
             boolean: true,
             default: true,
-            abbr: 'l'
+            abbr: 'l',
+            help: 'live option'
           },
           {
             name: 'format',
@@ -210,4 +222,30 @@ test('none handler', function (t) {
   t.equal(handled, true, 'returned true')
   var handled2 = args(['buffalo', 'wings'])
   t.equal(handled2, false, 'returned true')
+})
+
+test('usage handler', function (t) {
+  t.plan(5)
+  function onUsage (args, help, usage) {
+    t.ok(true, 'called onUsage')
+    t.ok(help, 'has general help')
+    t.ok(usage, 'has cliclops usage')
+    t.ok(usage.indexOf('version option') > -1, 'has version help')
+  }
+  var args = sub(testCommands(null, null, null, onUsage))
+  var handled = args(['--help'])
+  t.equal(handled, true, 'returned true')
+})
+
+test('subcommand usage handler', function (t) {
+  t.plan(5)
+  function onUsage (args, help, usage) {
+    t.ok(true, 'called onUsage')
+    t.ok(help, 'has general help')
+    t.ok(usage, 'has cliclops usage')
+    t.ok(usage.indexOf('live option') > -1, 'has live help')
+  }
+  var args = sub(testCommands(null, null, null, onUsage))
+  var handled = args(['cat', '--help'])
+  t.equal(handled, true, 'returned true')
 })
