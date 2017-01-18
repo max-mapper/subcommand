@@ -140,11 +140,11 @@ var config = {
 
 ### usage
 
-pass an option and command under the `usage` key and it will get called when that option is usage for the main command or subcommands. The usage option is `--help` and `-h` by default
+The `usage` option makes it easy to print [cliclops usage](https://github.com/finnp/cliclopts#clioptsusage) for the root command and subcommands.
 
 #### Basic usage
 
-This will print usage from cliclops whenever the `--help` or `-h` options are used:
+By default, usage is printed with the `--help` or `-h` option. Set usage to true to print `cliclops.usage()` with `--help`:
 
 ```js
 var config = {
@@ -152,7 +152,7 @@ var config = {
 }
 ```
 
-This will use `--info` instead of `--help`. And it will print `"general usage info"` before printing `cliclops.usage()`:
+Use `usage.help` to print information above `cliclops.usage()`. Change the name of the usage option by specifying `usage.option`:
 
 ```js
 var config = {
@@ -165,6 +165,8 @@ var config = {
   }
 }
 ```
+
+This will print the usage with `--info` or `-i` instead of `--help`. The option is used for the root and subcommands.
 
 #### Advanced Usage
 
