@@ -1,13 +1,14 @@
 var test = require('tape')
 var sub = require('./')
 
-function testCommands (onMatch, onAll, onNone) {
+function testCommands (onMatch, onAll, onNone, onUsage) {
   var config = {
     root: {
       options: [{
         name: 'version',
         boolean: true,
-        abbr: 'v'
+        abbr: 'v',
+        help: 'version option'
       }],
       command: function noCommand (args) {
         onMatch('noCommand', args)
@@ -20,6 +21,10 @@ function testCommands (onMatch, onAll, onNone) {
     }],
     all: onAll,
     none: onNone,
+    usage: {
+      name: 'help',
+      command: onUsage
+    },
     commands: [
       {
         name: 'cat',
@@ -210,4 +215,16 @@ test('none handler', function (t) {
   t.equal(handled, true, 'returned true')
   var handled2 = args(['buffalo', 'wings'])
   t.equal(handled2, false, 'returned true')
+})
+
+test('usage handler', function (t) {
+  t.plan(4)
+  function onUsage (args, usage) {
+    t.ok(true, 'called onUsage')
+    t.ok(usage, 'has cliclops usage')
+    t.ok(usage.indexOf('version option') > -1, 'has version help')
+  }
+  var args = sub(testCommands(null, null, null, onUsage))
+  var handled = args(['help'])
+  t.equal(handled, true, 'returned true')
 })

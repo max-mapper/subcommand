@@ -21,7 +21,8 @@ var commands = [
         name: 'loud',
         boolean: true,
         default: false,
-        abbr: 'v'
+        abbr: 'v',
+        help: 'print out all output loudly'
       }
     ],
     command: function foo (args) {
@@ -72,6 +73,7 @@ instead of an array, you can also pass an object that looks like this as the fir
   defaults: // default options
   all: // function that gets called always, regardless of match or no match
   none: // function that gets called only when there is no matched subcommand
+  usage: // subcommand to use for printing usage
   commands: // the commands array from basic usage
 }
 ```
@@ -132,6 +134,23 @@ pass a function under the `none` key and it will get called when no subcommand i
 ```js
 var config = {
   none: function none (args) { /** will only be called when no subcommand is matched **/ },
+  commands: yourSubCommandsArray
+}
+```
+
+### usage
+
+pass a name and command under the `usage` key and it will get called when no subcommand is matched and the name matches
+
+```js
+var config = {
+  usage: {
+    name: 'help', // subcommand to use for printing usage
+    command: function (args, cliclops.usage()) {
+      // optional function to print usage. second argument is a string from cliclops.usage()
+      // will call cliclops.print() if no command is specified.
+    }
+  }
   commands: yourSubCommandsArray
 }
 ```
