@@ -144,13 +144,15 @@ pass an option and command under the `usage` key and it will get called when tha
 
 #### Basic usage
 
+This will print usage from cliclops whenever the `--help` or `-h` options are used:
+
 ```js
 var config = {
   usage: true
 }
 ```
 
-This will print usage from cliclops whenever the `--help` or `-h` options are used.
+This will use `--info` instead of `--help`. And it will print `"general usage info"` before printing `cliclops.usage()`:
 
 ```js
 var config = {
@@ -163,8 +165,6 @@ var config = {
   }
 }
 ```
-
-This will use `--info` instead of `--help`. And it will print `"general usage info"` before printing `cliclops.usage()`
 
 #### Advanced Usage
 
