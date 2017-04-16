@@ -1,5 +1,5 @@
 var test = require('tape')
-var sub = require('./')
+var sub = require('./recursive')
 
 function testCommands (onMatch, onAll, onNone, onUsage) {
   var config = {
@@ -51,19 +51,23 @@ function testCommands (onMatch, onAll, onNone, onUsage) {
         ],
         command: function cat (args) {
           onMatch('cat', args)
-        }
-      },
-      {
-        name: 'cat foo',
-        command: function catFoo (args) {
-          onMatch('cat foo', args)
-        }
-      },
-      {
-        name: 'cat foo bar',
-        command: function catFooBar (args) {
-          onMatch('cat foo bar', args)
-        }
+        },
+        commands: [
+          {
+            name: 'foo',
+            command: function catFoo (args) {
+              onMatch('cat foo', args)
+            },
+            commands: [
+              {
+                name: 'bar',
+                command: function catFooBar (args) {
+                  onMatch('cat foo bar', args)
+                }
+              }
+            ]
+          },
+        ]
       }
     ]
   }
