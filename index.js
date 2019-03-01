@@ -1,6 +1,6 @@
 var minimist = require('minimist')
 var cliclopts = require('cliclopts')
-var xtend = require('xtend')
+var xtend = Object.assign
 var debug = require('debug')('subcommand')
 
 module.exports = function subcommand (config, options) {
@@ -71,7 +71,7 @@ function findCommand (args, commands) {
   commands
     .map(function each (c, idx) {
       // turn e.g. 'foo bar' into ['foo', 'bar']
-      return {name: c.name.split(' '), index: idx}
+      return { name: c.name.split(' '), index: idx }
     })
     .sort(function each (a, b) {
       return a.name.length > b.name.length
@@ -84,7 +84,7 @@ function findCommand (args, commands) {
         commandLength = c.name.length
       }
     })
-  var returnData = {command: match, commandLength: commandLength}
+  var returnData = { command: match, commandLength: commandLength }
   debug('match', match)
   if (match) return returnData
   else return false

@@ -180,9 +180,9 @@ test('commands with no options still get defaults', function (t) {
 
 test('default options are overridden', function (t) {
   var args = sub({
-    defaults: [{name: 'foo', default: 'donkey'}],
+    defaults: [{ name: 'foo', default: 'donkey' }],
     root: {
-      options: [{name: 'foo', default: 'pizza'}],
+      options: [{ name: 'foo', default: 'pizza' }],
       command: function root (args) {
         t.equal(args.foo, 'pizza', 'pizza')
         t.end()
