@@ -30,7 +30,7 @@ module.exports = function subcommand (config, options) {
     if (!sub) {
       if (config.usage && (argv[config.usage.option.name] || argv[config.usage.option.abbr])) {
         debug('Printing general usage')
-        if (config.usage.command) config.usage.command(argv, config.usage.help, rootClic.usage())
+        if (config.usage.command) config.usage.command(argv, config.usage.help,  rootClic ? rootClic.usage() : undefined)
         else {
           if (config.usage.help) process.stdout.write(config.usage.help + '\n')
           process.stdout.write(rootClic.usage())
