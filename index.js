@@ -84,7 +84,7 @@ function findCommand (args, commands) {
         commandLength = c.name.length
       }
     })
-  var returnData = { command: match, commandLength: commandLength }
+  var returnData = { command: match, commandLength }
   debug('match', match)
   if (match) return returnData
   else return false
